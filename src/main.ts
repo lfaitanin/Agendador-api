@@ -9,6 +9,7 @@ import { ValidationPipe } from '@nestjs/common';
 const bootstrap = async (module: any) => {
   const app = express();
   const nestApp = await NestFactory.create(module, new ExpressAdapter(app));
+  console.log('cachedHadler');
 
   nestApp.setGlobalPrefix('/.netlify/functions/server');
   nestApp.enableCors();
@@ -27,7 +28,10 @@ const bootstrap = async (module: any) => {
 
 let cachedHadler: any;
 const proxyApi = async (module: any, event: any, context: any) => {
+  console.log(cachedHadler);
+
   if (!cachedHadler) {
+    console.log(cachedHadler);
     const app = await bootstrap(module);
     cachedHadler = serverless(app);
   }
