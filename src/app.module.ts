@@ -5,14 +5,15 @@ import { ServicosModule } from './servicos/servicos.module';
 import { AgendamentoModule } from './agendamento/agendamento.module';
 import { Servicos } from './servicos/entities/servicos.entity';
 import { Agendamentos } from './agendamento/entities/agendamento.entity';
-
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ServicosModule,
     AgendamentoModule,
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: 'postgresql://postgres.vbdvaybfhevvchtgtvgw:EuZeloBD%2323%21@aws-0-sa-east-1.pooler.supabase.com:5432/appminio?schema=appminio',
+      url: process.env.DATABASE_HOST,
       // url: ConfigService.get('FOO'),
       entities: [Servicos, Agendamentos],
       synchronize: true,
