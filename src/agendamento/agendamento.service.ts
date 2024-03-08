@@ -1,5 +1,4 @@
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
-import { UpdateAgendamentoDto } from './dto/update-agendamento.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,7 +31,7 @@ export class AgendamentoService {
     return this.agendamentosRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateAgendamentoDto: UpdateAgendamentoDto) {
+  async update(id: number, updateAgendamentoDto: CreateAgendamentoDto) {
     const AgendamentoExistente = await this.agendamentosRepository.findOne({
       where: { id },
     });

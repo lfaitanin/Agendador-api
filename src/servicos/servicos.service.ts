@@ -1,5 +1,4 @@
 import { CreateServicoDto } from './dto/create-servico.dto';
-import { UpdateServicoDto } from './dto/update-servico.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,7 +31,7 @@ export class ServicosService {
     return this.servicosRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateServicoDto: UpdateServicoDto) {
+  async update(id: number, updateServicoDto: CreateServicoDto) {
     const servicoExistente = await this.servicosRepository.findOne({
       where: { id },
     });

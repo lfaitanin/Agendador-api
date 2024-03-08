@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AgendamentoService } from './agendamento.service';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
-import { UpdateAgendamentoDto } from './dto/update-agendamento.dto';
 
 @Controller('agendamento')
 export class AgendamentoController {
@@ -33,7 +32,7 @@ export class AgendamentoController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateAgendamentoDto: UpdateAgendamentoDto,
+    @Body() updateAgendamentoDto: CreateAgendamentoDto,
   ) {
     return this.agendamentoService.update(+id, updateAgendamentoDto);
   }
