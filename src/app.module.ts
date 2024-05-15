@@ -1,24 +1,30 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { ServicosModule } from './servicos/servicos.module';
 import { AgendamentoModule } from './agendamento/agendamento.module';
-import { Servicos } from './servicos/entities/servicos.entity';
-import { Agendamentos } from './agendamento/entities/agendamento.entity';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
+// import { UnidadesModule } from './unidades/unidades.module';
 @Module({
   imports: [
-    ServicosModule,
     AgendamentoModule,
+    UsersModule,
+    AuthModule,
+    DatabaseModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_HOST,
-      // url: ConfigService.get('FOO'),
-      entities: [Servicos, Agendamentos],
+      host: 'localhost',
+      port: 5432,
+      password: 'password',
+      username: 'postgres',
+      database: 'postgres',
       synchronize: true,
-      schema: 'appminio',
+      logging: true,
     }),
+    // UnidadesModule,
   ],
 })
 export class AppModule {

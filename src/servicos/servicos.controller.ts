@@ -16,6 +16,7 @@ export class ServicosController {
 
   @Post('Criar')
   create(@Body() createServicoDto: CreateServicoDto) {
+    console.log(createServicoDto);
     return this.servicosService.create(createServicoDto);
   }
 

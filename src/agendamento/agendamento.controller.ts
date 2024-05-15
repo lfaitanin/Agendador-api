@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  // Patch,
   Param,
   Delete,
 } from '@nestjs/common';
@@ -16,6 +16,7 @@ export class AgendamentoController {
 
   @Post('Criar')
   create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
+    console.log(createAgendamentoDto);
     return this.agendamentoService.create(createAgendamentoDto);
   }
 
@@ -24,18 +25,18 @@ export class AgendamentoController {
     return this.agendamentoService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.agendamentoService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.agendamentoService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAgendamentoDto: CreateAgendamentoDto,
-  ) {
-    return this.agendamentoService.update(+id, updateAgendamentoDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateAgendamentoDto: CreateAgendamentoDto,
+  // ) {
+  //   return this.agendamentoService.update(+id, updateAgendamentoDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
