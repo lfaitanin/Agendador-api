@@ -4,6 +4,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const port = 3000;
+
   const config = new DocumentBuilder()
     .setTitle('Scheduler API')
     .setDescription('Api to scheduler')
@@ -15,6 +17,6 @@ async function bootstrap() {
 
   app.enableCors();
 
-  await app.listen(3000);
+  await app.listen(port);
 }
 bootstrap();
