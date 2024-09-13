@@ -9,15 +9,4 @@ export class CreateUnidadeUsuarioDto {
   @IsNotEmpty()
   id_unidade: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  frequencia: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  duracao: number;
-
-  @IsDate()
-  @IsNotEmpty()
-  primeiro_plantao: Date;
 }

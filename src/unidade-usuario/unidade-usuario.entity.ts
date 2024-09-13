@@ -20,13 +20,4 @@ export class UnidadeUsuario {
   @ManyToOne(() => Unidade, (unidade) => unidade.id)
   @JoinColumn({ name: 'id_unidade' })
   unidade: Unidade;
-
-  @Column()
-  frequencia: number;
-
-  @Column()
-  duracao: number;
-
-  @Column()
-  primeiro_plantao: Date;
 }

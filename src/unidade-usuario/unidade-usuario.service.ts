@@ -19,7 +19,7 @@ export class UnidadeUsuarioService {
   async create(
     createUnidadeUsuarioDto: CreateUnidadeUsuarioDto,
   ): Promise<UnidadeUsuario> {
-    const { id_usuario, id_unidade, frequencia, duracao, primeiro_plantao } =
+    const { id_usuario, id_unidade } =
       createUnidadeUsuarioDto;
 
     const user = await this.userRepository.findOne({ where: { id_usuario } });
@@ -37,9 +37,6 @@ export class UnidadeUsuarioService {
     const unidadeUsuario = new UnidadeUsuario();
     unidadeUsuario.user = user;
     unidadeUsuario.unidade = unidade;
-    unidadeUsuario.frequencia = frequencia;
-    unidadeUsuario.duracao = duracao;
-    unidadeUsuario.primeiro_plantao = primeiro_plantao;
 
     return await this.unidadeUsuarioRepository.save(unidadeUsuario);
   }
@@ -53,9 +50,6 @@ export class UnidadeUsuarioService {
     return unidades.map((unidadeUsuario) => ({
       id_unidade: unidadeUsuario.unidade.id,
       nomeFantasia: unidadeUsuario.unidade.nomeFantasia,
-      frequencia: unidadeUsuario.frequencia,
-      duracao: unidadeUsuario.duracao,
-      primeiro_plantao: unidadeUsuario.primeiro_plantao,
     }));
   }
 
