@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import User from '../user/user.entity';
+import { User } from '../user/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/signup.dto';
@@ -34,7 +34,10 @@ export class AuthService {
     return { token };
   }
 
-  async login(loginDto: LoginDto): Promise<{ id: number, name: string, token: string }> {
+
+  async login(
+    loginDto: LoginDto,
+  ): Promise<{ token: string; user: { id: number; name: string } }> {
     const { email, senha } = loginDto;
 
     const user = await this.usersRepository.findOne({
@@ -55,6 +58,13 @@ export class AuthService {
     const token = this.jwtService.sign({ id: user.id_usuario });
     const idUser = user.id_usuario;
 
-    return { id: idUser, name: user.nome, token };
+
+    return {
+      token,
+      user: {
+        id: user.id_usuario,
+        name: user.nome,
+      },
+    };
   }
 }

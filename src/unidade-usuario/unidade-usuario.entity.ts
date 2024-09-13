@@ -1,7 +1,7 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
+  PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -9,25 +9,24 @@ import { User } from '../user/user.entity';
 import { Unidade } from '../unidade/unidade.entity';
 
 @Entity()
-export class Agendamentos {
+export class UnidadeUsuario {
   @PrimaryGeneratedColumn()
-  id_agendamento: number;
+  id_unidade_usuario: number;
+
+  @ManyToOne(() => User, (user) => user.id_usuario)
+  @JoinColumn({ name: 'id_usuario' })
+  user: User;
 
   @ManyToOne(() => Unidade, (unidade) => unidade.id)
   @JoinColumn({ name: 'id_unidade' })
   unidade: Unidade;
 
-  @ManyToOne(() => User, (user) => user.id_usuario)
-  @JoinColumn({ name: 'id_solicitante' })
-  solicitante: User;
-
-  @ManyToOne(() => User, (user) => user.id_usuario)
-  @JoinColumn({ name: 'id_solicitado' })
-  solicitado: User;
+  @Column()
+  frequencia: number;
 
   @Column()
-  data_plantao: Date;
+  duracao: number;
 
   @Column()
-  valor: number;
+  primeiro_plantao: Date;
 }
