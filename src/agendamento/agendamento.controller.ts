@@ -1,24 +1,24 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  // Patch,
+  // Post,
+  // Body,
+  Query,
   Param,
   Delete,
 } from '@nestjs/common';
 import { AgendamentoService } from './agendamento.service';
-import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
+// import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Controller('agendamento')
 export class AgendamentoController {
   constructor(private readonly agendamentoService: AgendamentoService) {}
 
-  @Post('Criar')
-  create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
-    console.log(createAgendamentoDto);
-    return this.agendamentoService.create(createAgendamentoDto);
-  }
+  // @Post('Criar')
+  // create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
+  //   console.log(createAgendamentoDto);
+  //   return this.agendamentoService.create(createAgendamentoDto);
+  // }
 
   @Get()
   findAll() {
@@ -41,5 +41,17 @@ export class AgendamentoController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.agendamentoService.remove(+id);
+  }
+  @Get('financeiro/:userId')
+  async getFinancialData(
+    @Param('userId') userId: number,
+    @Query('month') month: number,
+    @Query('year') year: number,
+  ) {
+    return this.agendamentoService.getFinancialData(userId, month, year);
+  }
+  @Get('hospitals')
+  async getHospitals() {
+    return this.agendamentoService.getHospitals();
   }
 }

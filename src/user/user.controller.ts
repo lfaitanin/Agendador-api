@@ -7,7 +7,7 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import User from './user.entity';
+import { User } from './user.entity';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './dto/user.dto';
 import { AuthGuard } from '@nestjs/passport';

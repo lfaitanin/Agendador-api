@@ -6,13 +6,16 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-// import { UnidadesModule } from './unidades/unidades.module';
+import { UnidadeUsuarioModule } from './unidade-usuario/unidade-usuario.module';
+import { UnidadeModule } from './unidade/unidade.module';
 @Module({
   imports: [
     AgendamentoModule,
     UsersModule,
     AuthModule,
     DatabaseModule,
+    UnidadeUsuarioModule,
+    UnidadeModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -24,7 +27,6 @@ import { DatabaseModule } from './database/database.module';
       synchronize: true,
       logging: true,
     }),
-    // UnidadesModule,
   ],
 })
 export class AppModule {

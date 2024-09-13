@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { UnidadeUsuario } from '../unidade-usuario/unidade-usuario.entity';
 
 @Entity()
-class User {
+export class User {
   @PrimaryGeneratedColumn()
   id_usuario: number;
 
@@ -16,6 +17,7 @@ class User {
 
   @Column()
   id_tipo_usuario: number;
-}
 
-export default User;
+  @OneToMany(() => UnidadeUsuario, (unidadeUsuario) => unidadeUsuario.user)
+  unidadeUsuarios: UnidadeUsuario[];
+}
