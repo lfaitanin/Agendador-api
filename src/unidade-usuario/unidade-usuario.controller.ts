@@ -42,4 +42,8 @@ export class UnidadeUsuarioController {
   remove(@Param('id') id: string) {
     return this.unidadeUsuarioService.remove(+id);
   }
+  @Get('usuario/:userId')
+  async getUnidadesByUsuario(@Param('userId') userId: number) {
+    return await this.unidadeUsuarioService.getUnidadesByUsuario(userId);
+  }
 }

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Agendamentos } from './agendamento.entity';
 import { Unidade } from '../unidade/unidade.entity';
+import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Injectable()
 export class AgendamentoService {
@@ -13,21 +14,46 @@ export class AgendamentoService {
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
   ) {}
-  // async create(createAgendamentoDto: CreateAgendamentoDto) {
-  //   const agendamentoExist = await this.agendamentosRepository.findOneBy({
-  //     valor: createAgendamentoDto.valor,
-  //     id_solicitado: createAgendamentoDto.id_solicitado,
-  //     id_solicitante: createAgendamentoDto.id_solicitante,
-  //     id_unidade: createAgendamentoDto.id_unidade,
-  //     data_plantao: createAgendamentoDto.data_plantao,
-  //   });
+  async create(createAgendamentoDto: CreateAgendamentoDto) {
+    // const agendamentoExist = await this.agendamentosRepository.findOneBy({
+    //   valor: createAgendamentoDto.valor,
+    //   id_solicitado: createAgendamentoDto.id_solicitado,
+    //   id_solicitante: createAgendamentoDto.id_solicitante,
+    //   id_unidade: createAgendamentoDto.id_unidade,
+    //   data_plantao: createAgendamentoDto.data_plantao,
+    // });
 
-  //   if (agendamentoExist) return 'Ja foi criado previamente';
+    // if (agendamentoExist) return 'Ja foi criado previamente';
 
-  //   const saved = await this.agendamentosRepository.save(createAgendamentoDto);
-  //   return saved;
-  // }
+    const saved = await this.agendamentosRepository.save(createAgendamentoDto);
+    return saved;
+  }
+  // Buscar próximo plantão
+  async getProximoPlantao(userId: number): Promise<Agendamentos> {
+    return await this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where(
+        'agendamento.id_solicitado = :userId OR agendamento.id_solicitante = :userId',
+        { userId },
+      )
+      .andWhere('agendamento.data_plantao > CURRENT_DATE')
+      .orderBy('agendamento.data_plantao', 'ASC')
+      .getOne();
+  }
 
+  // Buscar últimos 5 plantões já realizados (histórico)
+  async getHistoricoPlantao(userId: number): Promise<Agendamentos[]> {
+    return await this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where(
+        'agendamento.id_solicitado = :userId OR agendamento.id_solicitante = :userId',
+        { userId },
+      )
+      .andWhere('agendamento.data_plantao < CURRENT_DATE')
+      .orderBy('agendamento.data_plantao', 'DESC')
+      .limit(5)
+      .getMany();
+  }
   findAll() {
     return this.agendamentosRepository.find();
   }
@@ -83,6 +109,18 @@ export class AgendamentoService {
       .getRawMany();
 
     return { despesas, receitas };
+  }
+
+  async getAvailableShifts(
+    selectedDate: string,
+    unidadeId: number,
+  ): Promise<Agendamentos[]> {
+    return this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where('agendamento.data_plantao = :selectedDate', { selectedDate })
+      .andWhere('agendamento.id_solicitante IS NULL') // Plantões sem solicitante
+      .andWhere('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
+      .getMany();
   }
   async getHospitals() {
     const hospitals = await this.unidadeRepository.find();
