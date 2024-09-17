@@ -13,7 +13,7 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
     const { nome, email, senha, id_tipo_usuario } = signUpDto;
@@ -33,7 +33,6 @@ export class AuthService {
 
     return { token };
   }
-
 
   async login(
     loginDto: LoginDto,
@@ -57,7 +56,6 @@ export class AuthService {
 
     const token = this.jwtService.sign({ id: user.id_usuario });
     const idUser = user.id_usuario;
-
 
     return {
       token,

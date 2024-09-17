@@ -19,8 +19,7 @@ export class UnidadeUsuarioService {
   async create(
     createUnidadeUsuarioDto: CreateUnidadeUsuarioDto,
   ): Promise<UnidadeUsuario> {
-    const { id_usuario, id_unidade } =
-      createUnidadeUsuarioDto;
+    const { id_usuario, id_unidade } = createUnidadeUsuarioDto;
 
     const user = await this.userRepository.findOne({ where: { id_usuario } });
     if (!user) {
@@ -77,5 +76,14 @@ export class UnidadeUsuarioService {
 
   async remove(id: number) {
     await this.unidadeUsuarioRepository.delete(id);
+  }
+
+  async getUnidadesByUsuario(userId: number) {
+    return this.unidadeUsuarioRepository
+      .createQueryBuilder('unidadeUsuario')
+      .innerJoinAndSelect('unidadeUsuario.unidade', 'unidade')
+      .where('unidadeUsuario.id_usuario = :userId', { userId })
+      .select(['unidade.id', 'unidade.nomeFantasia']) // Seleciona o nomeFantasia
+      .getMany();
   }
 }

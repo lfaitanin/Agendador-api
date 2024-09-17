@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsDate } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUnidadeUsuarioDto {
   @IsNumber()
@@ -8,5 +8,4 @@ export class CreateUnidadeUsuarioDto {
   @IsNumber()
   @IsNotEmpty()
   id_unidade: number;
-
 }

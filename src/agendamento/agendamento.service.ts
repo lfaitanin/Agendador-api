@@ -13,42 +13,36 @@ export class AgendamentoService {
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
   ) { }
-  // async create(createAgendamentoDto: CreateAgendamentoDto) {
-  //   const agendamentoExist = await this.agendamentosRepository.findOneBy({
-  //     valor: createAgendamentoDto.valor,
-  //     id_usuario_beneficiado: createAgendamentoDto.id_usuario_beneficiado,
-  //     id_usuario_dono: createAgendamentoDto.id_usuario_dono,
-  //     id_unidade: createAgendamentoDto.id_unidade,
-  //     data_plantao: createAgendamentoDto.data_plantao,
-  //   });
 
-  //   if (agendamentoExist) return 'Ja foi criado previamente';
+  // Buscar próximo plantão
+  async getProximoPlantao(userId: number): Promise<Agendamentos> {
+    return await this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where(
+        'agendamento.id_solicitado = :userId OR agendamento.id_solicitante = :userId',
+        { userId },
+      )
+      .andWhere('agendamento.data_plantao > CURRENT_DATE')
+      .orderBy('agendamento.data_plantao', 'ASC')
+      .getOne();
+  }
 
-  //   const saved = await this.agendamentosRepository.save(createAgendamentoDto);
-  //   return saved;
-  // }
-
+  // Buscar últimos 5 plantões já realizados (histórico)
+  async getHistoricoPlantao(userId: number): Promise<Agendamentos[]> {
+    return await this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where(
+        'agendamento.id_solicitado = :userId OR agendamento.id_solicitante = :userId',
+        { userId },
+      )
+      .andWhere('agendamento.data_plantao < CURRENT_DATE')
+      .orderBy('agendamento.data_plantao', 'DESC')
+      .limit(5)
+      .getMany();
+  }
   findAll() {
     return this.agendamentosRepository.find();
   }
-
-  // findOne(id_agendamento: number) {
-  //   return this.agendamentosRepository.findOneBy({ id_agendamento });
-  // }
-
-  // async update(
-  //   id_agendamento: number,
-  //   updateAgendamentoDto: CreateAgendamentoDto,
-  // ) {
-  //   const AgendamentoExistente = await this.agendamentosRepository.findOne({
-  //     where: { id_agendamento },
-  //   });
-
-  //   return this.agendamentosRepository.save({
-  //     ...AgendamentoExistente,
-  //     ...updateAgendamentoDto,
-  //   });
-  // }
 
   async remove(id: number) {
     await this.agendamentosRepository.delete(id);
@@ -92,6 +86,18 @@ export class AgendamentoService {
     const receitas = await queryReceitas.groupBy('unidade.nomeFantasia').getRawMany();
 
     return { despesas, receitas };
+  }
+
+  async getAvailableShifts(
+    selectedDate: string,
+    unidadeId: number,
+  ): Promise<Agendamentos[]> {
+    return this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where('agendamento.data_plantao = :selectedDate', { selectedDate })
+      .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
+      .andWhere('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
+      .getMany();
   }
 
   async getHospitals() {

@@ -24,7 +24,16 @@ export class AgendamentoController {
   findAll() {
     return this.agendamentoService.findAll();
   }
+  @Get('proximo/:userId')
+  async getProximoPlantao(@Param('userId') userId: number) {
+    return await this.agendamentoService.getProximoPlantao(userId);
+  }
 
+  // Endpoint para buscar o histórico dos últimos 5 plantões
+  @Get('historico/:userId')
+  async getHistoricoPlantao(@Param('userId') userId: number) {
+    return await this.agendamentoService.getHistoricoPlantao(userId);
+  }
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.agendamentoService.findOne(+id);
@@ -55,5 +64,13 @@ export class AgendamentoController {
   @Get('hospitals')
   async getHospitals() {
     return this.agendamentoService.getHospitals();
+  }
+  // Endpoint para buscar plantões disponíveis
+  @Get('disponiveis')
+  async getAvailableShifts(
+    @Query('date') date: string,
+    @Query('unidadeId') unidadeId: number,
+  ) {
+    return await this.agendamentoService.getAvailableShifts(date, unidadeId);
   }
 }
