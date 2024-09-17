@@ -16,8 +16,8 @@ export class AgendamentoService {
   // async create(createAgendamentoDto: CreateAgendamentoDto) {
   //   const agendamentoExist = await this.agendamentosRepository.findOneBy({
   //     valor: createAgendamentoDto.valor,
-  //     id_solicitado: createAgendamentoDto.id_solicitado,
-  //     id_solicitante: createAgendamentoDto.id_solicitante,
+  //     id_usuario_beneficiado: createAgendamentoDto.id_usuario_beneficiado,
+  //     id_usuario_dono: createAgendamentoDto.id_usuario_dono,
   //     id_unidade: createAgendamentoDto.id_unidade,
   //     data_plantao: createAgendamentoDto.data_plantao,
   //   });
@@ -60,7 +60,7 @@ export class AgendamentoService {
       .addSelect('SUM(agendamento.valor)', 'valorTotal')
       .addSelect('COUNT(agendamento.id_agendamento)', 'transacoes')
       .leftJoin('agendamento.unidade', 'unidade')
-      .where('agendamento.solicitante = :userId', { userId })
+      .where('agendamento.usuario_dono = :userId', { userId })
       .andWhere('EXTRACT(MONTH FROM agendamento.data_plantao) = :month', {
         month,
       })
@@ -74,7 +74,7 @@ export class AgendamentoService {
       .addSelect('SUM(agendamento.valor)', 'valorTotal')
       .addSelect('COUNT(agendamento.id_agendamento)', 'transacoes')
       .leftJoin('agendamento.unidade', 'unidade')
-      .where('agendamento.solicitado = :userId', { userId })
+      .where('agendamento.beneficiado = :userId', { userId })
       .andWhere('EXTRACT(MONTH FROM agendamento.data_plantao) = :month', {
         month,
       })
