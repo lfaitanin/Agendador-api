@@ -18,12 +18,12 @@ export class Agendamentos {
   unidade: Unidade;
 
   @ManyToOne(() => User, (user) => user.id_usuario)
-  @JoinColumn({ name: 'id_solicitante' })
-  solicitante: User;
+  @JoinColumn({ name: 'id_usuario_dono' })
+  usuario_dono: User;
 
   @ManyToOne(() => User, (user) => user.id_usuario)
-  @JoinColumn({ name: 'id_solicitado' })
-  solicitado: User;
+  @JoinColumn({ name: 'id_usuario_beneficiado' })
+  usuario_beneficiado: User;
 
   @Column()
   data_plantao: Date;

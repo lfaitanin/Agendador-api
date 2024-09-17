@@ -6,9 +6,9 @@ export class CreateAgendamentoDto {
   @ApiProperty()
   valor: number;
   @ApiProperty()
-  id_solicitante: number;
+  id_usuario_dono: number;
   @ApiProperty()
-  id_solicitado: number;
+  id_usuario_beneficiado: number;
   @ApiProperty()
   id_unidade: number;
 }
