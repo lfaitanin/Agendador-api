@@ -8,6 +8,15 @@ import {
 import { User } from '../user/user.entity';
 import { Unidade } from '../unidade/unidade.entity';
 
+export class ColumnNumericTransformer {
+  to(data: number): number {
+    return data;
+  }
+  from(data: string): number {
+    return parseFloat(data);
+  }
+}
+
 @Entity()
 export class Agendamentos {
   @PrimaryGeneratedColumn()
@@ -28,6 +37,10 @@ export class Agendamentos {
   @Column()
   data_plantao: Date;
 
-  @Column()
+  @Column('numeric', {
+    precision: 35,
+    scale: 3,
+    transformer: new ColumnNumericTransformer(),
+  })
   valor: number;
 }

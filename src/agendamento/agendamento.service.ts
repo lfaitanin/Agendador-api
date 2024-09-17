@@ -12,7 +12,7 @@ export class AgendamentoService {
     private agendamentosRepository: Repository<Agendamentos>,
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
-  ) {}
+  ) { }
   // async create(createAgendamentoDto: CreateAgendamentoDto) {
   //   const agendamentoExist = await this.agendamentosRepository.findOneBy({
   //     valor: createAgendamentoDto.valor,
@@ -53,37 +53,47 @@ export class AgendamentoService {
   async remove(id: number) {
     await this.agendamentosRepository.delete(id);
   }
-  async getFinancialData(userId: number, month: number, year: number) {
-    const despesas = await this.agendamentosRepository
-      .createQueryBuilder('agendamento')
-      .select('unidade.nomeFantasia', 'unidade')
-      .addSelect('SUM(agendamento.valor)', 'valorTotal')
-      .addSelect('COUNT(agendamento.id_agendamento)', 'transacoes')
-      .leftJoin('agendamento.unidade', 'unidade')
-      .where('agendamento.usuario_dono = :userId', { userId })
-      .andWhere('EXTRACT(MONTH FROM agendamento.data_plantao) = :month', {
-        month,
-      })
-      .andWhere('EXTRACT(YEAR FROM agendamento.data_plantao) = :year', { year })
-      .groupBy('unidade.nomeFantasia')
-      .getRawMany();
 
-    const receitas = await this.agendamentosRepository
+  async getFinancialData(userId: number, startDate: string, endDate: string, unidadeIds: number[]) {
+    const queryDespesas = this.agendamentosRepository
       .createQueryBuilder('agendamento')
       .select('unidade.nomeFantasia', 'unidade')
       .addSelect('SUM(agendamento.valor)', 'valorTotal')
       .addSelect('COUNT(agendamento.id_agendamento)', 'transacoes')
       .leftJoin('agendamento.unidade', 'unidade')
-      .where('agendamento.beneficiado = :userId', { userId })
-      .andWhere('EXTRACT(MONTH FROM agendamento.data_plantao) = :month', {
-        month,
-      })
-      .andWhere('EXTRACT(YEAR FROM agendamento.data_plantao) = :year', { year })
-      .groupBy('unidade.nomeFantasia')
-      .getRawMany();
+      .where('agendamento.id_usuario_dono = :userId', { userId })
+      .andWhere('id_usuario_beneficiado is not null')
+      .andWhere('agendamento.data_plantao BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      });
+
+    if (unidadeIds.length > 0) {
+      queryDespesas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', { unidadeIds });
+    }
+    const despesas = await queryDespesas.groupBy('unidade.nomeFantasia').getRawMany();
+
+    const queryReceitas = this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .select('unidade.nomeFantasia', 'unidade')
+      .addSelect('SUM(agendamento.valor)', 'valorTotal')
+      .addSelect('COUNT(agendamento.id_agendamento)', 'transacoes')
+      .leftJoin('agendamento.unidade', 'unidade')
+      .where('agendamento.id_usuario_beneficiado = :userId', { userId })
+      .andWhere('agendamento.data_plantao BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      });
+
+    // Filtrar receitas pelas unidades se aplicável
+    if (unidadeIds.length > 0) {
+      queryReceitas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', { unidadeIds });
+    }
+    const receitas = await queryReceitas.groupBy('unidade.nomeFantasia').getRawMany();
 
     return { despesas, receitas };
   }
+
   async getHospitals() {
     const hospitals = await this.unidadeRepository.find();
     return hospitals.map((hospital) => ({

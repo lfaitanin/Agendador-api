@@ -12,7 +12,7 @@ import { AgendamentoService } from './agendamento.service';
 
 @Controller('agendamento')
 export class AgendamentoController {
-  constructor(private readonly agendamentoService: AgendamentoService) {}
+  constructor(private readonly agendamentoService: AgendamentoService) { }
 
   // @Post('Criar')
   // create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
@@ -45,10 +45,12 @@ export class AgendamentoController {
   @Get('financeiro/:userId')
   async getFinancialData(
     @Param('userId') userId: number,
-    @Query('month') month: number,
-    @Query('year') year: number,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('unidadeIds') unidadeIds: string, // Recebe os IDs das unidades ou 'todas'
   ) {
-    return this.agendamentoService.getFinancialData(userId, month, year);
+    const unidadeIdArray = unidadeIds ? unidadeIds.split(',').map(id => Number(id)) : []; // Converte a string para array de números
+    return this.agendamentoService.getFinancialData(userId, startDate, endDate, unidadeIdArray);
   }
   @Get('hospitals')
   async getHospitals() {
