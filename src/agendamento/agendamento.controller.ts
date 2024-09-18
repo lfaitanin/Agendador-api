@@ -1,24 +1,25 @@
 import {
   Controller,
   Get,
-  // Post,
-  // Body,
+  Post,
+  Body,
   Query,
   Param,
   Delete,
 } from '@nestjs/common';
 import { AgendamentoService } from './agendamento.service';
-// import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
+import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Controller('agendamento')
 export class AgendamentoController {
-  constructor(private readonly agendamentoService: AgendamentoService) { }
+  constructor(private readonly agendamentoService: AgendamentoService) {}
 
-  // @Post('Criar')
-  // create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
-  //   console.log(createAgendamentoDto);
-  //   return this.agendamentoService.create(createAgendamentoDto);
-  // }
+  @Post()
+  create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
+    console.log(createAgendamentoDto);
+
+    return this.agendamentoService.create(createAgendamentoDto);
+  }
 
   @Get()
   findAll() {
@@ -58,8 +59,15 @@ export class AgendamentoController {
     @Query('endDate') endDate: string,
     @Query('unidadeIds') unidadeIds: string, // Recebe os IDs das unidades ou 'todas'
   ) {
-    const unidadeIdArray = unidadeIds ? unidadeIds.split(',').map(id => Number(id)) : []; // Converte a string para array de números
-    return this.agendamentoService.getFinancialData(userId, startDate, endDate, unidadeIdArray);
+    const unidadeIdArray = unidadeIds
+      ? unidadeIds.split(',').map((id) => Number(id))
+      : []; // Converte a string para array de números
+    return this.agendamentoService.getFinancialData(
+      userId,
+      startDate,
+      endDate,
+      unidadeIdArray,
+    );
   }
   @Get('hospitals')
   async getHospitals() {

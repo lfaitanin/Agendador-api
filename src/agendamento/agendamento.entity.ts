@@ -30,12 +30,21 @@ export class Agendamentos {
   @JoinColumn({ name: 'id_usuario_dono' })
   usuario_dono: User;
 
-  @ManyToOne(() => User, (user) => user.id_usuario)
+  @ManyToOne(() => User, (user) => user.id_usuario, { nullable: true })
   @JoinColumn({ name: 'id_usuario_beneficiado' })
   usuario_beneficiado: User;
 
   @Column()
   data_plantao: Date;
+
+  @Column()
+  id_usuario_dono: number;
+
+  @Column({ nullable: true })
+  id_usuario_beneficiado: number;
+
+  @Column()
+  id_unidade: number;
 
   @Column('numeric', {
     precision: 35,

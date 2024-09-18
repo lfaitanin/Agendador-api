@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Agendamentos } from './agendamento.entity';
 import { Unidade } from '../unidade/unidade.entity';
+import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Injectable()
 export class AgendamentoService {
@@ -12,7 +13,17 @@ export class AgendamentoService {
     private agendamentosRepository: Repository<Agendamentos>,
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
-  ) { }
+  ) {}
+
+  async create(
+    createAgendamentoDto: CreateAgendamentoDto,
+  ): Promise<Agendamentos> {
+    const agendamento = this.agendamentosRepository.create({
+      ...createAgendamentoDto,
+    });
+
+    return this.agendamentosRepository.save(agendamento);
+  }
 
   // Buscar próximo plantão
   async getProximoPlantao(userId: number): Promise<Agendamentos> {
@@ -48,7 +59,12 @@ export class AgendamentoService {
     await this.agendamentosRepository.delete(id);
   }
 
-  async getFinancialData(userId: number, startDate: string, endDate: string, unidadeIds: number[]) {
+  async getFinancialData(
+    userId: number,
+    startDate: string,
+    endDate: string,
+    unidadeIds: number[],
+  ) {
     const queryDespesas = this.agendamentosRepository
       .createQueryBuilder('agendamento')
       .select('unidade.nomeFantasia', 'unidade')
@@ -63,9 +79,13 @@ export class AgendamentoService {
       });
 
     if (unidadeIds.length > 0) {
-      queryDespesas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', { unidadeIds });
+      queryDespesas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', {
+        unidadeIds,
+      });
     }
-    const despesas = await queryDespesas.groupBy('unidade.nomeFantasia').getRawMany();
+    const despesas = await queryDespesas
+      .groupBy('unidade.nomeFantasia')
+      .getRawMany();
 
     const queryReceitas = this.agendamentosRepository
       .createQueryBuilder('agendamento')
@@ -81,9 +101,13 @@ export class AgendamentoService {
 
     // Filtrar receitas pelas unidades se aplicável
     if (unidadeIds.length > 0) {
-      queryReceitas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', { unidadeIds });
+      queryReceitas.andWhere('agendamento.id_unidade IN (:...unidadeIds)', {
+        unidadeIds,
+      });
     }
-    const receitas = await queryReceitas.groupBy('unidade.nomeFantasia').getRawMany();
+    const receitas = await queryReceitas
+      .groupBy('unidade.nomeFantasia')
+      .getRawMany();
 
     return { despesas, receitas };
   }
