@@ -112,16 +112,21 @@ export class AgendamentoService {
     return { despesas, receitas };
   }
 
-  async getAvailableShifts(
-    selectedDate: string,
-    unidadeId: number,
-  ): Promise<Agendamentos[]> {
+  async getAvailableShifts(date: string, unidadeId: number) {
     return this.agendamentosRepository
       .createQueryBuilder('agendamento')
-      .where('agendamento.data_plantao = :selectedDate', { selectedDate })
-      .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
-      .andWhere('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
-      .getMany();
+      .select([
+        'agendamento.id_agendamento',
+        'agendamento.data_plantao',
+        'agendamento.valor',
+        'user.nome AS nome_usuario_dono',
+        'unidade.nomeFantasia AS nome_unidade',
+      ])
+      .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
+      .leftJoin('agendamento.unidade', 'unidade') // Junta com a tabela unidade
+      .where('agendamento.data_plantao = :date', { date })
+      .andWhere('agendamento.id_unidade = :unidadeId', { unidadeId })
+      .getRawMany();
   }
 
   async getHospitals() {
