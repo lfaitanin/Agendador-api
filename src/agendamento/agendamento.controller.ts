@@ -12,7 +12,7 @@ import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 
 @Controller('agendamento')
 export class AgendamentoController {
-  constructor(private readonly agendamentoService: AgendamentoService) {}
+  constructor(private readonly agendamentoService: AgendamentoService) { }
 
   @Post()
   create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
@@ -80,5 +80,19 @@ export class AgendamentoController {
     @Query('unidadeId') unidadeId: number,
   ) {
     return await this.agendamentoService.getAvailableShifts(date, unidadeId);
+  }
+  @Get('disponiveis-by-unidade')
+  async getAvailableShiftsByUnidade(
+    @Query('unidadeId') unidadeId: number,
+  ) {
+    return await this.agendamentoService.getAvailableShiftsByUnit(unidadeId);
+  }
+
+  // Endpoint para buscar plantões disponíveis
+  @Get('disponiveis-by-date')
+  async getAvailableShiftsByDate(
+    @Query('date') date: string
+  ) {
+    return await this.agendamentoService.getAvailableShiftsByDate(date);
   }
 }

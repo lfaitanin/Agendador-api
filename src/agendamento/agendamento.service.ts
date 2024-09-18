@@ -124,6 +124,27 @@ export class AgendamentoService {
       .getMany();
   }
 
+  async getAvailableShiftsByDate(
+    selectedDate: string,
+  ): Promise<Agendamentos[]> {
+    return this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where('agendamento.data_plantao = :selectedDate', { selectedDate })
+      .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
+      .getMany();
+  }
+
+  async getAvailableShiftsByUnit(
+    unidadeId: number,
+  ): Promise<Agendamentos[]> {
+    return this.agendamentosRepository
+      .createQueryBuilder('agendamento')
+      .where('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
+      .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
+      .andWhere("agendamento.data_plantao BETWEEN now()::date and now()::date + interval '365 days'")
+      .getMany();
+  }
+
   async getHospitals() {
     const hospitals = await this.unidadeRepository.find();
     return hospitals.map((hospital) => ({
