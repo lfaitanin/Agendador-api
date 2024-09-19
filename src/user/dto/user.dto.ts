@@ -13,6 +13,8 @@ export class CreateUserDto {
   senha: string;
 
   @IsNotEmpty()
-  @MinLength(6)
   id_tipo_usuario: number;
+
+  @IsNotEmpty()
+  telefone: string; // Adicionando o campo de telefone
 }

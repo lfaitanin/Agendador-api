@@ -16,14 +16,14 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
-    const { nome, email, senha, id_tipo_usuario } = signUpDto;
+    const { nome, email, senha, telefone, id_tipo_usuario } = signUpDto;
 
     const hashedPassword = await bcrypt.hash(senha, 10);
-    console.log(id_tipo_usuario);
     const user = await this.usersRepository.create({
       nome,
       email,
       senha: hashedPassword,
+      telefone,
       id_tipo_usuario,
     });
 

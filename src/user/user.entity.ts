@@ -1,5 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { UnidadeUsuario } from '../unidade-usuario/unidade-usuario.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -9,7 +8,7 @@ export class User {
   @Column()
   nome: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column()
@@ -18,6 +17,6 @@ export class User {
   @Column()
   id_tipo_usuario: number;
 
-  @OneToMany(() => UnidadeUsuario, (unidadeUsuario) => unidadeUsuario.user)
-  unidadeUsuarios: UnidadeUsuario[];
+  @Column()
+  telefone: string; // Adicionando o campo de telefone
 }

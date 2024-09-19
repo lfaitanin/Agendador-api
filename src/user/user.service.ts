@@ -8,7 +8,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async getAllUsers() {
     const users = this.usersRepository.find();
@@ -28,15 +28,17 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const newUser = await this.usersRepository.create(createUserDto);
-    await this.usersRepository.save({
-      name: createUserDto.nome,
+    const newUser = this.usersRepository.create({
+      nome: createUserDto.nome,
       email: createUserDto.email,
-      password: createUserDto.senha,
+      senha: createUserDto.senha,
       id_tipo_usuario: createUserDto.id_tipo_usuario,
+      telefone: createUserDto.telefone, // Capturando o telefone
     });
+    await this.usersRepository.save(newUser);
     return newUser;
   }
+
 
   async deleteById(id_usuario: number) {
     const user = await this.usersRepository.findOne({
@@ -50,5 +52,9 @@ export class UsersService {
 
     await this.usersRepository.remove(user);
     return user;
+  }
+
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 }

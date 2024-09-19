@@ -6,14 +6,19 @@ export class SignUpDto {
   nome: string;
 
   @IsNotEmpty()
-  @IsEmail({}, { message: 'Please enter correct email' })
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @MinLength(6, { message: 'Senha deve ter pelo menos 6 caracteres!' })
   senha: string;
 
+  @IsNotEmpty()
   @MinLength(6, { message: 'Tipo de profissional tem que ser selecionado!' })
   id_tipo_usuario: number;
+
+  @IsNotEmpty()
+  @MinLength(14, { message: 'Telefone não informado!' })
+  telefone: string;
 }
