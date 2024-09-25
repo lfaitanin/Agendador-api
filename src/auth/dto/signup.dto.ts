@@ -22,3 +22,11 @@ export class SignUpDto {
   @MinLength(14, { message: 'Telefone não informado!' })
   telefone: string;
 }
+
+export class VerificationCodeDto {
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  code: string;
+}

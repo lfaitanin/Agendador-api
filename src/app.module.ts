@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AgendamentoModule } from './agendamento/agendamento.module';
@@ -8,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { UnidadeUsuarioModule } from './unidade-usuario/unidade-usuario.module';
 import { UnidadeModule } from './unidade/unidade.module';
+
 @Module({
   imports: [
     AgendamentoModule,
@@ -17,6 +19,10 @@ import { UnidadeModule } from './unidade/unidade.module';
     UnidadeUsuarioModule,
     UnidadeModule,
     ConfigModule.forRoot(),
+    CacheModule.register({
+      ttl: 60, // O TTL de 60 segundos
+      max: 10000, // Limite máximo de objetos armazenados
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: '5.189.147.176',
@@ -30,5 +36,5 @@ import { UnidadeModule } from './unidade/unidade.module';
   ],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 }
