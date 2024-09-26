@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { UnidadeUsuarioModule } from './unidade-usuario/unidade-usuario.module';
 import { UnidadeModule } from './unidade/unidade.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UnidadeModule } from './unidade/unidade.module';
     DatabaseModule,
     UnidadeUsuarioModule,
     UnidadeModule,
+    NotificationModule,
     ConfigModule.forRoot(),
     CacheModule.register({
       ttl: 60, // O TTL de 60 segundos

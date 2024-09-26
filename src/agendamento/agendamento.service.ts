@@ -7,6 +7,8 @@ import { Unidade } from '../unidade/unidade.entity';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
 import { AgendamentoPorUnidadeDto } from './dto/agendamento-por-unidade.dto';
 import { MeusAgendamentosDto } from './dto/meus-agendamentos.dto';
+import { Notification } from 'src/notification/notification.entity';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AgendamentoService {
@@ -15,6 +17,10 @@ export class AgendamentoService {
     private agendamentosRepository: Repository<Agendamentos>,
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
+    @InjectRepository(Notification)
+    private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) { }
 
   async create(
@@ -122,6 +128,7 @@ export class AgendamentoService {
         'agendamento.id_agendamento',
         'agendamento.data_plantao',
         'agendamento.valor',
+        'agendamento.id_usuario_dono',
         'user.nome AS nome_usuario_dono',
         'user.id_tipo_usuario AS id_tipo_usuario',
         'unidade.nomeFantasia AS nome_unidade',
@@ -165,20 +172,21 @@ export class AgendamentoService {
 
   async findPlantoesByUser(idUsuario: number): Promise<MeusAgendamentosDto[]> {
     return this.agendamentosRepository
-    .createQueryBuilder('agendamento')
-    .select([
-      'agendamento.id_agendamento',
-      'agendamento.data_plantao',
-      'agendamento.valor',
-      'user.nome AS nome_usuario_dono',
-      'user.id_tipo_usuario AS id_tipo_usuario',
-      'user.telefone as telefone',
-      'unidade.nomeFantasia AS nome_unidade',
-    ])
-    .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
-    .leftJoin('agendamento.unidade', 'unidade') // Junta com a tabela unidade
-    .where('agendamento.id_usuario_beneficiado = :idUsuario', { idUsuario })
-    .getRawMany();
+      .createQueryBuilder('agendamento')
+      .select([
+        'agendamento.id_agendamento',
+        'agendamento.data_plantao',
+        'agendamento.valor',
+        'agendamento.id_usuario_dono',
+        'user.nome AS nome_usuario_dono',
+        'user.id_tipo_usuario AS id_tipo_usuario',
+        'user.telefone as telefone',
+        'unidade.nomeFantasia AS nome_unidade',
+      ])
+      .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
+      .leftJoin('agendamento.unidade', 'unidade') // Junta com a tabela unidade
+      .where('agendamento.id_usuario_beneficiado = :idUsuario', { idUsuario })
+      .getRawMany();
   }
 
   async getHospitals() {
@@ -204,6 +212,18 @@ export class AgendamentoService {
 
     // Atualizar o id_usuario_beneficiado
     plantao.id_usuario_beneficiado = id_usuario;
-    return await this.agendamentosRepository.save(plantao);
+    const response = await this.agendamentosRepository.save(plantao);
+
+    const userBeneficiado = await this.userRepository.findOne({ where: { id_usuario: id_usuario } });
+    // Criar notificação para o dono do plantão
+    const notificacao = this.notificationRepository.create({
+      title: 'Plantão assumido.',
+      message: `Seu plantão foi assumido pelo usuário ${userBeneficiado.nome}. \nTelefone para contato: ${userBeneficiado.telefone}`,
+      userId: plantao.id_usuario_dono, // Enviar a notificação para o dono do plantão
+    });
+
+    await this.notificationRepository.save(notificacao); // Salvar a notificação
+
+    return response;
   }
 }
