@@ -6,9 +6,14 @@ import {
   Query,
   Param,
   Delete,
+  Res,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { AgendamentoService } from './agendamento.service';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
+import { PegarPlantaoDto } from './dto/pegar-plantao.dto';
+import { Response } from 'express';
 
 @Controller('agendamento')
 export class AgendamentoController {
@@ -94,5 +99,34 @@ export class AgendamentoController {
     @Query('date') date: string
   ) {
     return await this.agendamentoService.getAvailableShiftsByDate(date);
+  }
+
+  @Get('meus-plantoes')
+  async getMeusPlantoes(@Query('id_usuario') idUsuario: number) {
+    const plantao = await this.agendamentoService.findPlantoesByUser(idUsuario);
+    if (!plantao || plantao.length === 0) {
+      throw new NotFoundException('Nenhum plantão encontrado para este usuário');
+    }
+    return plantao;
+  }
+
+  @Post('pegar-plantao')
+  async pegarPlantao(@Body() pegarPlantaoDto: PegarPlantaoDto, @Res() res: Response): Promise<Response> {
+    const { id_plantao, id_usuario } = pegarPlantaoDto;
+
+    try {
+      const plantao = await this.agendamentoService.findPlantaoById(id_plantao);
+      if (!plantao) {
+        throw new NotFoundException('Plantão não encontrado');
+      }
+
+      if (plantao.id_usuario_beneficiado) {
+        throw new BadRequestException('Este plantão não está disponível.');
+      }
+      var response = this.agendamentoService.pegarPlantao(plantao, id_usuario);
+      return res.status(200).json({ response }); // Retornar 200 em caso de sucesso
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro interno do servidor' });
+    }
   }
 }

@@ -4,19 +4,16 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Nest Framework",
+      "name": "Nest.js Debug",
+      "runtimeArgs": ["run-script", "start:dev"],
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "start:debug",
-        "--",
-        "--inspect-brk"
-      ],
-      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"],
       "restart": true,
-      "sourceMaps": true,
-      "stopOnEntry": false,
       "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "envFile": "${workspaceFolder}/.env",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }
   ]
 }

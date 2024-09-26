@@ -1,10 +1,12 @@
 // import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Agendamentos } from './agendamento.entity';
 import { Unidade } from '../unidade/unidade.entity';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
+import { AgendamentoPorUnidadeDto } from './dto/agendamento-por-unidade.dto';
+import { MeusAgendamentosDto } from './dto/meus-agendamentos.dto';
 
 @Injectable()
 export class AgendamentoService {
@@ -13,7 +15,7 @@ export class AgendamentoService {
     private agendamentosRepository: Repository<Agendamentos>,
     @InjectRepository(Unidade)
     private readonly unidadeRepository: Repository<Unidade>,
-  ) {}
+  ) { }
 
   async create(
     createAgendamentoDto: CreateAgendamentoDto,
@@ -51,6 +53,7 @@ export class AgendamentoService {
       .limit(5)
       .getMany();
   }
+
   findAll() {
     return this.agendamentosRepository.find();
   }
@@ -120,6 +123,7 @@ export class AgendamentoService {
         'agendamento.data_plantao',
         'agendamento.valor',
         'user.nome AS nome_usuario_dono',
+        'user.id_tipo_usuario AS id_tipo_usuario',
         'unidade.nomeFantasia AS nome_unidade',
       ])
       .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
@@ -141,13 +145,40 @@ export class AgendamentoService {
 
   async getAvailableShiftsByUnit(
     unidadeId: number,
-  ): Promise<Agendamentos[]> {
+  ): Promise<AgendamentoPorUnidadeDto[]> {
     return this.agendamentosRepository
       .createQueryBuilder('agendamento')
+      .select([
+        'agendamento.data_plantao',
+        'user.id_tipo_usuario AS id_tipo_usuario',
+      ])
+      .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
       .where('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
       .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
       .andWhere("agendamento.data_plantao BETWEEN now()::date and now()::date + interval '365 days'")
-      .getMany();
+      .getRawMany();
+  }
+
+  MapAgendamentoPorUnidadeDto() {
+
+  }
+
+  async findPlantoesByUser(idUsuario: number): Promise<MeusAgendamentosDto[]> {
+    return this.agendamentosRepository
+    .createQueryBuilder('agendamento')
+    .select([
+      'agendamento.id_agendamento',
+      'agendamento.data_plantao',
+      'agendamento.valor',
+      'user.nome AS nome_usuario_dono',
+      'user.id_tipo_usuario AS id_tipo_usuario',
+      'user.telefone as telefone',
+      'unidade.nomeFantasia AS nome_unidade',
+    ])
+    .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
+    .leftJoin('agendamento.unidade', 'unidade') // Junta com a tabela unidade
+    .where('agendamento.id_usuario_beneficiado = :idUsuario', { idUsuario })
+    .getRawMany();
   }
 
   async getHospitals() {
@@ -156,5 +187,23 @@ export class AgendamentoService {
       id: hospital.id,
       nomeFantasia: hospital.nomeFantasia,
     }));
+  }
+
+  // Método para encontrar um plantão pelo ID
+  async findPlantaoById(id: number): Promise<Agendamentos> {
+    return await this.agendamentosRepository.findOne({
+      where: { id_agendamento: id },
+    });
+  }
+
+  // Método para pegar um plantão
+  async pegarPlantao(plantao: Agendamentos, id_usuario: number): Promise<Agendamentos> {
+    if (!plantao) {
+      throw new NotFoundException('Plantão não encontrado');
+    }
+
+    // Atualizar o id_usuario_beneficiado
+    plantao.id_usuario_beneficiado = id_usuario;
+    return await this.agendamentosRepository.save(plantao);
   }
 }

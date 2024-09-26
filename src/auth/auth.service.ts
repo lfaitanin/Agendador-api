@@ -120,7 +120,7 @@ export class AuthService {
   }
 
   // Função de login
-  async login(loginDto: LoginDto): Promise<{ token: string; user: { id: number; name: string } }> {
+  async login(loginDto: LoginDto): Promise<{ token: string; user: { id: number; name: string, id_tipo_usuario: number } }> {
     const { email, senha } = loginDto;
 
     const user = await this.usersRepository.findOne({ where: { email } });
@@ -139,6 +139,7 @@ export class AuthService {
       user: {
         id: user.id_usuario,
         name: user.nome,
+        id_tipo_usuario: user.id_tipo_usuario
       },
     };
   }
