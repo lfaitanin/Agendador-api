@@ -21,6 +21,10 @@ export class SignUpDto {
   @IsNotEmpty()
   @MinLength(14, { message: 'Telefone não informado!' })
   telefone: string;
+
+  @IsNotEmpty()
+  @MinLength(11, { message: 'CPF não informado!' })
+  cpf: string;
 }
 
 export class VerificationCodeDto {

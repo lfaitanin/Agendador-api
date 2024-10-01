@@ -21,7 +21,7 @@ export class AgendamentoService {
     private readonly notificationRepository: Repository<Notification>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(
     createAgendamentoDto: CreateAgendamentoDto,
@@ -162,13 +162,13 @@ export class AgendamentoService {
       .leftJoin('agendamento.usuario_dono', 'user') // Junta com a tabela user
       .where('agendamento.id_unidade = :unidadeId', { unidadeId }) // Filtrar pela unidade
       .andWhere('agendamento.id_usuario_beneficiado IS NULL') // Plantões sem solicitante
-      .andWhere("agendamento.data_plantao BETWEEN now()::date and now()::date + interval '365 days'")
+      .andWhere(
+        "agendamento.data_plantao BETWEEN now()::date and now()::date + interval '365 days'",
+      )
       .getRawMany();
   }
 
-  MapAgendamentoPorUnidadeDto() {
-
-  }
+  MapAgendamentoPorUnidadeDto() {}
 
   async findPlantoesByUser(idUsuario: number): Promise<MeusAgendamentosDto[]> {
     return this.agendamentosRepository
@@ -205,7 +205,10 @@ export class AgendamentoService {
   }
 
   // Método para pegar um plantão
-  async pegarPlantao(plantao: Agendamentos, id_usuario: number): Promise<Agendamentos> {
+  async pegarPlantao(
+    plantao: Agendamentos,
+    id_usuario: number,
+  ): Promise<Agendamentos> {
     if (!plantao) {
       throw new NotFoundException('Plantão não encontrado');
     }
@@ -214,7 +217,9 @@ export class AgendamentoService {
     plantao.id_usuario_beneficiado = id_usuario;
     const response = await this.agendamentosRepository.save(plantao);
 
-    const userBeneficiado = await this.userRepository.findOne({ where: { id_usuario: id_usuario } });
+    const userBeneficiado = await this.userRepository.findOne({
+      where: { id_usuario: id_usuario },
+    });
     // Criar notificação para o dono do plantão
     const notificacao = this.notificationRepository.create({
       title: 'Plantão assumido.',

@@ -41,5 +41,4 @@ export class UsersController {
     const user = this.usersService.deleteById(Number(id));
     return user;
   }
-
 }

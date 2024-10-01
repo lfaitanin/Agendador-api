@@ -17,7 +17,7 @@ import { Response } from 'express';
 
 @Controller('agendamento')
 export class AgendamentoController {
-  constructor(private readonly agendamentoService: AgendamentoService) { }
+  constructor(private readonly agendamentoService: AgendamentoService) {}
 
   @Post()
   create(@Body() createAgendamentoDto: CreateAgendamentoDto) {
@@ -87,17 +87,13 @@ export class AgendamentoController {
     return await this.agendamentoService.getAvailableShifts(date, unidadeId);
   }
   @Get('disponiveis-by-unidade')
-  async getAvailableShiftsByUnidade(
-    @Query('unidadeId') unidadeId: number,
-  ) {
+  async getAvailableShiftsByUnidade(@Query('unidadeId') unidadeId: number) {
     return await this.agendamentoService.getAvailableShiftsByUnit(unidadeId);
   }
 
   // Endpoint para buscar plantões disponíveis
   @Get('disponiveis-by-date')
-  async getAvailableShiftsByDate(
-    @Query('date') date: string
-  ) {
+  async getAvailableShiftsByDate(@Query('date') date: string) {
     return await this.agendamentoService.getAvailableShiftsByDate(date);
   }
 
@@ -105,13 +101,18 @@ export class AgendamentoController {
   async getMeusPlantoes(@Query('id_usuario') idUsuario: number) {
     const plantao = await this.agendamentoService.findPlantoesByUser(idUsuario);
     if (!plantao || plantao.length === 0) {
-      throw new NotFoundException('Nenhum plantão encontrado para este usuário');
+      throw new NotFoundException(
+        'Nenhum plantão encontrado para este usuário',
+      );
     }
     return plantao;
   }
 
   @Post('pegar-plantao')
-  async pegarPlantao(@Body() pegarPlantaoDto: PegarPlantaoDto, @Res() res: Response): Promise<Response> {
+  async pegarPlantao(
+    @Body() pegarPlantaoDto: PegarPlantaoDto,
+    @Res() res: Response,
+  ): Promise<Response> {
     const { id_plantao, id_usuario } = pegarPlantaoDto;
 
     try {
@@ -123,7 +124,10 @@ export class AgendamentoController {
       if (plantao.id_usuario_beneficiado) {
         throw new BadRequestException('Este plantão não está disponível.');
       }
-      var response = this.agendamentoService.pegarPlantao(plantao, id_usuario);
+      const response = this.agendamentoService.pegarPlantao(
+        plantao,
+        id_usuario,
+      );
       return res.status(200).json({ response }); // Retornar 200 em caso de sucesso
     } catch (error) {
       return res.status(500).json({ message: 'Erro interno do servidor' });

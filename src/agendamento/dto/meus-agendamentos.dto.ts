@@ -14,6 +14,6 @@ export class MeusAgendamentosDto {
   @Column('decimal', { precision: 10, scale: 2 })
   agendamento_valor: number;
 
-  @ManyToOne(() => Unidade, unidade => unidade.nomeFantasia)
+  @ManyToOne(() => Unidade, (unidade) => unidade.nomeFantasia)
   unidade: Unidade;
 }

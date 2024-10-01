@@ -8,7 +8,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async getAllUsers() {
     const users = this.usersRepository.find();
@@ -38,7 +38,6 @@ export class UsersService {
     await this.usersRepository.save(newUser);
     return newUser;
   }
-
 
   async deleteById(id_usuario: number) {
     const user = await this.usersRepository.findOne({

@@ -15,22 +15,27 @@ export class NotificationService {
   ) {}
 
   // Criar uma nova notificação
-  async createNotification(createNotificationDto: CreateNotificationDto): Promise<Notification> {
-    const { title, message, userId, actionLink, type, priority } = createNotificationDto;
+  async createNotification(
+    createNotificationDto: CreateNotificationDto,
+  ): Promise<Notification> {
+    const { title, message, userId, actionLink, type, priority } =
+      createNotificationDto;
 
-    const user = await this.userRepository.findOne({ where: { id_usuario: userId } });
+    const user = await this.userRepository.findOne({
+      where: { id_usuario: userId },
+    });
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
 
     const newNotification = this.notificationRepository.create({
-        title: 'Nova Notificação',
-        message: 'Você tem um novo plantão.',
-        user: { id_usuario: userId }, // Aqui estamos referenciando o ID do usuário
-      });
+      title: 'Nova Notificação',
+      message: 'Você tem um novo plantão.',
+      user: { id_usuario: userId }, // Aqui estamos referenciando o ID do usuário
+    });
 
-      return this.notificationRepository.save(newNotification);
+    return this.notificationRepository.save(newNotification);
   }
 
   // Buscar notificações de um usuário

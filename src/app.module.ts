@@ -27,16 +27,16 @@ import { NotificationModule } from './notification/notification.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '5.189.147.176',
-      port: 32768,
-      password: '123456789',
-      username: 'lportainer',
-      database: 'public',
+      host: 'localhost',
+      port: 5432,
+      password: 'password',
+      username: 'postgres',
+      database: 'postgres',
       synchronize: true,
       logging: true,
     }),
   ],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) { }
+  constructor(private dataSource: DataSource) {}
 }

@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersService } from 'src/user/user.service';
+import { HttpModule } from '@nestjs/axios'; // Importando o HttpModule
 
 @Module({
   imports: [
@@ -30,10 +31,10 @@ import { UsersService } from 'src/user/user.service';
       },
     }),
     TypeOrmModule.forFeature([User]),
+    HttpModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, JwtStrategy],
   exports: [JwtStrategy, PassportModule],
 })
-export class AuthModule { }
-
+export class AuthModule {}

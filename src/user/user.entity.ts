@@ -21,6 +21,9 @@ export class User {
   @Column()
   telefone: string;
 
+  @Column()
+  cpf: string;
+
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[]; // Relacionamento entre usuários e notificações
 }

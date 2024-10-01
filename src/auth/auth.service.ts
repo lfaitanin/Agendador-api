@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
@@ -10,6 +15,7 @@ import { randomInt } from 'crypto';
 import { SendVerificationCodeDto } from 'src/user/dto/send-verification-code.dto';
 import * as nodemailer from 'nodemailer';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { HttpService } from '@nestjs/axios'; // Import necessário
 
 // Configurações de envio de e-mail
 const transporter = nodemailer.createTransport({
@@ -28,7 +34,8 @@ export class AuthService {
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache, // Cache injetado
-  ) { }
+    private httpService: HttpService,
+  ) {}
 
   // Função para armazenar o código de verificação no cache
   async setCache(userId: number, value: string) {
@@ -45,7 +52,9 @@ export class AuthService {
     const { email } = sendVerificationCodeDto;
 
     // Verifica se o usuário existe
-    const user = await this.usersRepository.findOne({ where: { email: sendVerificationCodeDto.email } });
+    const user = await this.usersRepository.findOne({
+      where: { email: sendVerificationCodeDto.email },
+    });
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
@@ -77,11 +86,16 @@ export class AuthService {
     // Exemplo de envio usando Twilio (não implementado aqui):
     // await this.twilioService.sendSMS(phone, `Seu código de verificação é: ${verificationCode}`);
 
-    return { message: 'Código de verificação enviado para o e-mail e telefone' };
+    return {
+      message: 'Código de verificação enviado para o e-mail e telefone',
+    };
   }
 
   // Função para confirmar o código de verificação
-  async confirmVerificationCode(email: string, code: string): Promise<{ token: string }> {
+  async confirmVerificationCode(
+    email: string,
+    code: string,
+  ): Promise<{ token: string }> {
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
@@ -98,37 +112,64 @@ export class AuthService {
     }
   }
 
-  // Função para cadastrar o usuário
   async signUp(signUpDto: SignUpDto): Promise<User> {
-    const { nome, email, senha, telefone, id_tipo_usuario } = signUpDto;
+    const { nome, email, senha, telefone, cpf, id_tipo_usuario } = signUpDto;
+    console.log('bateu aqui');
+    // Faz a requisição ao COREN para verificar o status do CPF
+    const corenResponse = await this.httpService.axiosRef.get(
+      `https://sigen.cofen.gov.br/rest/registro/registro/registros-externo2?page=0&size=10&profissionalCpf=${cpf}`,
+    );
 
+    const registros = corenResponse.data.content;
+    const registroAtivo = registros.find(
+      (registro) => registro.tipoSituacaoInscricaoDescricao === 'ATIVO',
+    );
+
+    if (!registroAtivo) {
+      throw new UnauthorizedException(
+        'Usuário não tem registro ativo no COREN',
+      );
+    }
+
+    // Se o CPF está ativo, procede com o cadastro
     const hashedPassword = await bcrypt.hash(senha, 10);
-    const user = await this.usersRepository.create({
+    const user = this.usersRepository.create({
       nome,
       email,
       senha: hashedPassword,
       telefone,
+      cpf,
       id_tipo_usuario,
     });
 
     await this.usersRepository.save(user);
 
     // Enviar o código de verificação para o e-mail e telefone
-    await this.sendVerificationCode({ email: user.email, userId: user.id_usuario, phone: user.telefone });
+    await this.sendVerificationCode({
+      email: user.email,
+      userId: user.id_usuario,
+      phone: user.telefone,
+    });
 
     return user;
   }
 
   // Função de login
-  async login(loginDto: LoginDto): Promise<{ token: string; user: { id: number; name: string, id_tipo_usuario: number } }> {
+  async login(loginDto: LoginDto): Promise<{
+    token: string;
+    user: { id: number; name: string; id_tipo_usuario: number };
+  }> {
     const { email, senha } = loginDto;
 
     const user = await this.usersRepository.findOne({ where: { email } });
+    console.log(user);
+
     if (!user) {
       throw new UnauthorizedException('Email ou senha inválidos');
     }
 
     const isPasswordMatched = await bcrypt.compare(senha, user.senha);
+    console.log(isPasswordMatched);
     if (!isPasswordMatched) {
       throw new UnauthorizedException('Email ou senha inválidos');
     }
@@ -139,7 +180,7 @@ export class AuthService {
       user: {
         id: user.id_usuario,
         name: user.nome,
-        id_tipo_usuario: user.id_tipo_usuario
+        id_tipo_usuario: user.id_tipo_usuario,
       },
     };
   }
