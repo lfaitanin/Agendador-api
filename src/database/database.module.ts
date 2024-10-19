@@ -9,7 +9,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: 'postgresql://agendador:LEw3b4nmPGCIqdNW5VNP6JQWJLOMiaaQ@dpg-cs9igbrqf0us739gorn0-a.oregon-postgres.render.com/agendador',
+        url: configService.get('POSTGRES_URL'),
+        entities: [__dirname + '/../**/*.entity.{js,ts}'],
         synchronize: true,
         ssl: true,
       }),
